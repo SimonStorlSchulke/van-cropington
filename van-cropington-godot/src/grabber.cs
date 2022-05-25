@@ -10,6 +10,17 @@ public class grabber : Panel
     public override void _Ready() {
         Connect("gui_input", this, nameof(OnGuiInput));
         v = GetParent<Viewer>();
+
+        Connect("mouse_entered", this, nameof(MouseEntered));
+        Connect("mouse_exited", this, nameof(MouseExited));
+    }
+
+    void MouseEntered() {
+        (Material as ShaderMaterial).SetShaderParam("glow", 1.0);
+    }
+
+    void MouseExited() {
+        (Material as ShaderMaterial).SetShaderParam("glow", 0.0);
     }
 
     bool grabbing = false;

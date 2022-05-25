@@ -6,9 +6,15 @@ public class Viewer : TextureRect
 {
     public Vector2 corner_tl = new Vector2();
     public Vector2 corner_br = new Vector2();
+
+    Control[] grabbers = new Control[8];
     
     public override void _Ready()
     {
+        for (int i = 0; i < grabbers.Length; i++) {
+            grabbers[i] = GetChild(i) as Control;
+        }
+
         OnResized();
         GetTree().Root.Connect("size_changed", this, nameof(OnResized));
         UpdateCorners();
@@ -26,15 +32,16 @@ public class Viewer : TextureRect
     ImageTexture tex = new ImageTexture();
     public void LoadImage(string path, CropOption options) {
         Error e = img.Load(path);
+        
         // Godot for some Reason can't import certain jpg files.
         // Stupid, but now I have to re-save them first with ImageMagick before using them in Godot. Why do I have to do this?
-
         if (e == Godot.Error.FileCorrupt) {
-            GD.Print(e);
+            GD.Print("Corrupt File - init workaround (Saving and reloading from temp)");
             using (MagickImage magickImg = new MagickImage(path)) {
                 magickImg.Format = MagickFormat.Jpg;
-                magickImg.Write(path);
-                img.Load(path);
+                magickImg.Write(System.IO.Path.GetTempPath() + "fix_corrupt_file.jpg");
+                img.Load(System.IO.Path.GetTempPath() + "fix_corrupt_file.jpg");
+                System.IO.File.Delete(System.IO.Path.GetTempPath() + "fix_corrupt_file.jpg");
             }
         }
 
@@ -88,12 +95,48 @@ public class Viewer : TextureRect
             if ((e as InputEventMouseButton).ButtonIndex == 1) {
                 grabbing = (e as InputEventMouseButton).Pressed;
                 if (grabbing) { 
-                    viewerGrabOffsetLT = GetChild<Control>(0).RectGlobalPosition - GetGlobalMousePosition();
-                    viewerGrabOffsetRT = GetChild<Control>(2).RectGlobalPosition - GetGlobalMousePosition();
-                    viewerGrabOffsetLB = GetChild<Control>(4).RectGlobalPosition - GetGlobalMousePosition();
-                    viewerGrabOffsetRB = GetChild<Control>(6).RectGlobalPosition - GetGlobalMousePosition();
+                    viewerGrabOffsetLT = grabbers[4].RectGlobalPosition - GetGlobalMousePosition();
+                    viewerGrabOffsetRT = grabbers[5].RectGlobalPosition - GetGlobalMousePosition();
+                    viewerGrabOffsetLB = grabbers[6].RectGlobalPosition - GetGlobalMousePosition();
+                    viewerGrabOffsetRB = grabbers[7].RectGlobalPosition - GetGlobalMousePosition();
                 }
             }
+        }
+    }
+
+    public override void _Input(InputEvent e) {
+        if (e is InputEventMouseButton) {
+            if ((e as InputEventMouseButton).ButtonIndex == (int)ButtonList.WheelUp) {
+                cropOpt.b_ltx = Mathf.Clamp(cropOpt.b_ltx + 0.03f, 0, 1);
+                cropOpt.b_lty = Mathf.Clamp(cropOpt.b_lty + 0.03f, 0, 1);
+                cropOpt.b_brx = Mathf.Clamp(cropOpt.b_brx - 0.03f, 0, 1);
+                cropOpt.b_bry = Mathf.Clamp(cropOpt.b_bry - 0.03f, 0, 1);
+                checkLogicness();
+                UpdateCorners();
+                UpdateShader();
+            }
+            else if ((e as InputEventMouseButton).ButtonIndex == (int)ButtonList.WheelDown) {
+                cropOpt.b_ltx = Mathf.Clamp(cropOpt.b_ltx - 0.03f, 0, 1);
+                cropOpt.b_lty = Mathf.Clamp(cropOpt.b_lty - 0.03f, 0, 1);
+                cropOpt.b_brx = Mathf.Clamp(cropOpt.b_brx + 0.03f, 0, 1);
+                cropOpt.b_bry = Mathf.Clamp(cropOpt.b_bry + 0.03f, 0, 1);
+                checkLogicness();
+                UpdateCorners();
+                UpdateShader();
+            }
+        }
+    }
+
+    public void checkLogicness() {
+        if(cropOpt.b_ltx > cropOpt.b_brx) {
+            float middle = (cropOpt.b_ltx + cropOpt.b_brx) / 2f;
+            cropOpt.b_ltx = middle;
+            cropOpt.b_brx = middle;
+        }
+        if(cropOpt.b_lty > cropOpt.b_bry) {
+            float middle = (cropOpt.b_lty + cropOpt.b_bry) / 2f;
+            cropOpt.b_lty = middle;
+            cropOpt.b_bry = middle;
         }
     }
 
@@ -105,17 +148,14 @@ public class Viewer : TextureRect
             p1.y = Mathf.Clamp(p1.y, 0, 1);
             p2.x = Mathf.Clamp(p2.x, 0, 1);
             p2.y = Mathf.Clamp(p2.y, 0, 1);
-
-            GetChild<Control>(0).RectGlobalPosition = UVToGlobalPos(p1);
-            GetChild<Control>(2).RectGlobalPosition = UVToGlobalPos(new Vector2(p2.x, p1.y));
-            GetChild<Control>(4).RectGlobalPosition = UVToGlobalPos(new Vector2(p1.x, p2.y));
-            GetChild<Control>(6).RectGlobalPosition = UVToGlobalPos(p2);
-
+            
             cropOpt.b_ltx = p1.x;
             cropOpt.b_lty = p1.y;
             cropOpt.b_brx = p2.x;
             cropOpt.b_bry = p2.y;
+
             UpdateShader();
+            UpdateCorners();
         }
     }
 
@@ -135,28 +175,33 @@ public class Viewer : TextureRect
                 cropOpt.b_lty = p.y;
                 break;
             case 1:
+                cropOpt.b_lty = p.y;
                 break;
             case 2:
                 cropOpt.b_brx = p.x;
                 cropOpt.b_lty = p.y;
                 break;
             case 3:
+                cropOpt.b_brx = p.x;
                 break;
             case 4:
                 cropOpt.b_brx = p.x;
                 cropOpt.b_bry = p.y;
                 break;
             case 5:
+                cropOpt.b_bry = p.y;
                 break;
             case 6:
                 cropOpt.b_ltx = p.x;
                 cropOpt.b_bry = p.y;
                 break;
             case 7:
+                cropOpt.b_ltx = p.x;
                 break;
         }
-        UpdateShader();
+        checkLogicness();
         UpdateCorners();
+        UpdateShader();
     }
 
     public void UpdateShader() {
@@ -167,10 +212,21 @@ public class Viewer : TextureRect
     }
 
     public void UpdateCorners() {
-        GetChild<Control>(0).RectGlobalPosition = UVToGlobalPos(new Vector2(cropOpt.b_ltx, cropOpt.b_lty));
-        GetChild<Control>(2).RectGlobalPosition = UVToGlobalPos(new Vector2(cropOpt.b_brx, cropOpt.b_lty));
-        GetChild<Control>(4).RectGlobalPosition = UVToGlobalPos(new Vector2(cropOpt.b_ltx, cropOpt.b_bry));
-        GetChild<Control>(6).RectGlobalPosition = UVToGlobalPos(new Vector2(cropOpt.b_brx, cropOpt.b_bry));
+
+        grabbers[4].RectGlobalPosition = UVToGlobalPos(new Vector2(cropOpt.b_ltx, cropOpt.b_lty));
+        grabbers[5].RectGlobalPosition = UVToGlobalPos(new Vector2(cropOpt.b_brx, cropOpt.b_lty));
+        grabbers[6].RectGlobalPosition = UVToGlobalPos(new Vector2(cropOpt.b_ltx, cropOpt.b_bry));
+        grabbers[7].RectGlobalPosition = UVToGlobalPos(new Vector2(cropOpt.b_brx, cropOpt.b_bry));
+
+        grabbers[0].RectSize = new Vector2((grabbers[5].RectGlobalPosition.x - grabbers[4].RectGlobalPosition.x), 70);
+        grabbers[1].RectSize = new Vector2((grabbers[6].RectGlobalPosition.y - grabbers[4].RectGlobalPosition.y), 70);
+        grabbers[2].RectSize = new Vector2((grabbers[5].RectGlobalPosition.x - grabbers[4].RectGlobalPosition.x), 70);
+        grabbers[3].RectSize = new Vector2((grabbers[6].RectGlobalPosition.y - grabbers[4].RectGlobalPosition.y), 70);
+
+        grabbers[0].RectGlobalPosition = UVToGlobalPos(new Vector2((cropOpt.b_ltx + cropOpt.b_brx) / 2f, cropOpt.b_lty)) - new Vector2(grabbers[0].RectSize.x / 2f, 0);
+        grabbers[1].RectGlobalPosition = UVToGlobalPos(new Vector2(cropOpt.b_brx, (cropOpt.b_lty + cropOpt.b_bry) / 2f)) - new Vector2(0, grabbers[1].RectSize.x / 2f);
+        grabbers[2].RectGlobalPosition = UVToGlobalPos(new Vector2((cropOpt.b_ltx + cropOpt.b_brx) / 2f, cropOpt.b_bry)) + new Vector2(grabbers[2].RectSize.x / 2f, 0);
+        grabbers[3].RectGlobalPosition = UVToGlobalPos(new Vector2(cropOpt.b_ltx, (cropOpt.b_lty + cropOpt.b_bry) / 2f)) + new Vector2(0, grabbers[3].RectSize.x / 2f);
     }
 
     

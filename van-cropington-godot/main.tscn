@@ -105,6 +105,7 @@ uniform bool t;
 uniform bool b;
 uniform bool l;
 uniform bool r;
+uniform float glow = 0.0;
 
 void fragment() {
 	
@@ -112,10 +113,50 @@ void fragment() {
 	float b_b = UV.y > 1.0 - width && b ? 1.0 : 0.0;
 	float b_l = UV.x < width && l ? 1.0 : 0.0;
 	float b_r = UV.x > 1.0 - width && r ? 1.0 : 0.0;
-	
-	COLOR *= max(max(b_t, b_b), max(b_l, b_r));
-	COLOR.a *= 0.3;
+	COLOR = vec4(1.0, 0.623, 0.063, 1.0);
+	COLOR.a *= max(max(b_t, b_b), max(b_l, b_r));
+	COLOR.a *= glow;
 }"
+
+[sub_resource type="ShaderMaterial" id=8]
+shader = SubResource( 3 )
+shader_param/color = Color( 1, 0, 0, 1 )
+shader_param/width = 0.1
+shader_param/t = true
+shader_param/b = false
+shader_param/l = false
+shader_param/r = false
+shader_param/glow = 0.0
+
+[sub_resource type="ShaderMaterial" id=9]
+shader = SubResource( 3 )
+shader_param/color = Color( 0.0509804, 0.12549, 1, 1 )
+shader_param/width = 0.1
+shader_param/t = true
+shader_param/b = false
+shader_param/l = false
+shader_param/r = false
+shader_param/glow = 0.0
+
+[sub_resource type="ShaderMaterial" id=10]
+shader = SubResource( 3 )
+shader_param/color = Color( 1, 1, 1, 1 )
+shader_param/width = 0.1
+shader_param/t = true
+shader_param/b = false
+shader_param/l = false
+shader_param/r = false
+shader_param/glow = 0.0
+
+[sub_resource type="ShaderMaterial" id=11]
+shader = SubResource( 3 )
+shader_param/color = Color( 1, 1, 1, 1 )
+shader_param/width = 0.1
+shader_param/t = true
+shader_param/b = false
+shader_param/l = false
+shader_param/r = false
+shader_param/glow = 0.0
 
 [sub_resource type="ShaderMaterial" id=4]
 shader = SubResource( 3 )
@@ -125,15 +166,7 @@ shader_param/t = true
 shader_param/b = false
 shader_param/l = true
 shader_param/r = false
-
-[sub_resource type="ShaderMaterial" id=8]
-shader = SubResource( 3 )
-shader_param/color = Color( 1, 1, 1, 1 )
-shader_param/width = 0.1
-shader_param/t = true
-shader_param/b = false
-shader_param/l = false
-shader_param/r = false
+shader_param/glow = 0.0
 
 [sub_resource type="ShaderMaterial" id=5]
 shader = SubResource( 3 )
@@ -143,15 +176,7 @@ shader_param/t = true
 shader_param/b = false
 shader_param/l = true
 shader_param/r = false
-
-[sub_resource type="ShaderMaterial" id=9]
-shader = SubResource( 3 )
-shader_param/color = Color( 1, 1, 1, 1 )
-shader_param/width = 0.1
-shader_param/t = false
-shader_param/b = false
-shader_param/l = false
-shader_param/r = true
+shader_param/glow = 0.0
 
 [sub_resource type="ShaderMaterial" id=6]
 shader = SubResource( 3 )
@@ -161,15 +186,7 @@ shader_param/t = true
 shader_param/b = false
 shader_param/l = true
 shader_param/r = false
-
-[sub_resource type="ShaderMaterial" id=10]
-shader = SubResource( 3 )
-shader_param/color = Color( 1, 1, 1, 1 )
-shader_param/width = 0.1
-shader_param/t = false
-shader_param/b = true
-shader_param/l = false
-shader_param/r = false
+shader_param/glow = 0.0
 
 [sub_resource type="ShaderMaterial" id=7]
 shader = SubResource( 3 )
@@ -179,47 +196,49 @@ shader_param/t = true
 shader_param/b = false
 shader_param/l = true
 shader_param/r = false
+shader_param/glow = 0.0
 
-[sub_resource type="ShaderMaterial" id=11]
-shader = SubResource( 3 )
-shader_param/color = Color( 1, 1, 1, 1 )
-shader_param/width = 0.1
-shader_param/t = true
-shader_param/b = true
-shader_param/l = true
-shader_param/r = true
-
-[node name="HBoxContainer" type="HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+custom_constants/separation = 0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Sidebar_l" type="Panel" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+margin_right = 1300.0
+margin_bottom = 876.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Sidebar_l" type="Panel" parent="HBoxContainer"]
 material = SubResource( 16 )
 margin_right = 260.0
-margin_bottom = 900.0
+margin_bottom = 876.0
 rect_min_size = Vector2( 260, 0 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="FileList" type="VBoxContainer" parent="Sidebar_l"]
+[node name="FileList" type="VBoxContainer" parent="HBoxContainer/Sidebar_l"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Sidebar_l/FileList"]
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/Sidebar_l/FileList"]
 margin_right = 260.0
-margin_bottom = 800.0
+margin_bottom = 724.0
 size_flags_vertical = 3
 
-[node name="ItemList" type="ItemList" parent="Sidebar_l/FileList/ScrollContainer"]
+[node name="ItemList" type="ItemList" parent="HBoxContainer/Sidebar_l/FileList/ScrollContainer"]
 margin_right = 260.0
-margin_bottom = 800.0
+margin_bottom = 724.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 auto_height = true
@@ -227,13 +246,20 @@ script = ExtResource( 4 )
 NPViewer = NodePath("../../../../Viewer")
 NPMaxWidth = NodePath("../../HBoxContainer/SpinBox")
 NPMaxHeight = NodePath("../../HBoxContainer2/SpinBox2")
+NPCBOverWrite = NodePath("../../CBOverWrite")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Sidebar_l/FileList"]
-margin_top = 804.0
+[node name="Button2" type="Button" parent="HBoxContainer/Sidebar_l/FileList"]
+margin_top = 728.0
 margin_right = 260.0
-margin_bottom = 828.0
+margin_bottom = 748.0
+text = "Clear File List"
 
-[node name="Control4" type="Control" parent="Sidebar_l/FileList/HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/Sidebar_l/FileList"]
+margin_top = 752.0
+margin_right = 260.0
+margin_bottom = 776.0
+
+[node name="Control4" type="Control" parent="HBoxContainer/Sidebar_l/FileList/HBoxContainer"]
 margin_right = 8.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 8, 0 )
@@ -241,14 +267,14 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Label2" type="Label" parent="Sidebar_l/FileList/HBoxContainer"]
+[node name="Label2" type="Label" parent="HBoxContainer/Sidebar_l/FileList/HBoxContainer"]
 margin_left = 12.0
 margin_top = 5.0
 margin_right = 80.0
 margin_bottom = 19.0
 text = "Max Width"
 
-[node name="Control2" type="Control" parent="Sidebar_l/FileList/HBoxContainer"]
+[node name="Control2" type="Control" parent="HBoxContainer/Sidebar_l/FileList/HBoxContainer"]
 margin_left = 84.0
 margin_right = 170.0
 margin_bottom = 24.0
@@ -257,7 +283,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="SpinBox" type="SpinBox" parent="Sidebar_l/FileList/HBoxContainer"]
+[node name="SpinBox" type="SpinBox" parent="HBoxContainer/Sidebar_l/FileList/HBoxContainer"]
 margin_left = 174.0
 margin_right = 248.0
 margin_bottom = 24.0
@@ -265,7 +291,7 @@ min_value = 8.0
 max_value = 10000.0
 value = 2000.0
 
-[node name="Control5" type="Control" parent="Sidebar_l/FileList/HBoxContainer"]
+[node name="Control5" type="Control" parent="HBoxContainer/Sidebar_l/FileList/HBoxContainer"]
 margin_left = 252.0
 margin_right = 260.0
 margin_bottom = 24.0
@@ -274,12 +300,12 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="Sidebar_l/FileList"]
-margin_top = 832.0
+[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/Sidebar_l/FileList"]
+margin_top = 780.0
 margin_right = 260.0
-margin_bottom = 856.0
+margin_bottom = 804.0
 
-[node name="Control2" type="Control" parent="Sidebar_l/FileList/HBoxContainer2"]
+[node name="Control2" type="Control" parent="HBoxContainer/Sidebar_l/FileList/HBoxContainer2"]
 margin_right = 8.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 8, 0 )
@@ -287,14 +313,14 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Label" type="Label" parent="Sidebar_l/FileList/HBoxContainer2"]
+[node name="Label" type="Label" parent="HBoxContainer/Sidebar_l/FileList/HBoxContainer2"]
 margin_left = 12.0
 margin_top = 5.0
 margin_right = 84.0
 margin_bottom = 19.0
 text = "Max Height"
 
-[node name="Control" type="Control" parent="Sidebar_l/FileList/HBoxContainer2"]
+[node name="Control" type="Control" parent="HBoxContainer/Sidebar_l/FileList/HBoxContainer2"]
 margin_left = 88.0
 margin_right = 170.0
 margin_bottom = 24.0
@@ -303,7 +329,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="SpinBox2" type="SpinBox" parent="Sidebar_l/FileList/HBoxContainer2"]
+[node name="SpinBox2" type="SpinBox" parent="HBoxContainer/Sidebar_l/FileList/HBoxContainer2"]
 margin_left = 174.0
 margin_right = 248.0
 margin_bottom = 24.0
@@ -311,7 +337,7 @@ min_value = 8.0
 max_value = 10000.0
 value = 2000.0
 
-[node name="Control3" type="Control" parent="Sidebar_l/FileList/HBoxContainer2"]
+[node name="Control3" type="Control" parent="HBoxContainer/Sidebar_l/FileList/HBoxContainer2"]
 margin_left = 252.0
 margin_right = 260.0
 margin_bottom = 24.0
@@ -320,10 +346,17 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Button" type="Button" parent="Sidebar_l/FileList"]
-margin_top = 860.0
+[node name="CBOverWrite" type="CheckBox" parent="HBoxContainer/Sidebar_l/FileList"]
+margin_top = 808.0
 margin_right = 260.0
-margin_bottom = 900.0
+margin_bottom = 832.0
+hint_tooltip = "With this enabled, Van cropington will save overwrite jpg files. If not, they are saved in a subfolder called \"cropped\""
+text = "Overwrite original Files"
+
+[node name="Button" type="Button" parent="HBoxContainer/Sidebar_l/FileList"]
+margin_top = 836.0
+margin_right = 260.0
+margin_bottom = 876.0
 rect_min_size = Vector2( 0, 40 )
 custom_colors/font_color = Color( 1, 1, 1, 1 )
 custom_colors/font_color_pressed = Color( 0, 0, 0, 1 )
@@ -333,11 +366,11 @@ custom_styles/pressed = SubResource( 14 )
 custom_styles/normal = SubResource( 12 )
 text = "Crop them All!"
 
-[node name="Viewer" type="TextureRect" parent="."]
+[node name="Viewer" type="TextureRect" parent="HBoxContainer"]
 material = SubResource( 2 )
 margin_left = 264.0
 margin_right = 1300.0
-margin_bottom = 900.0
+margin_bottom = 876.0
 rect_min_size = Vector2( 33, 33 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -349,7 +382,60 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="grabber_tl" type="Panel" parent="Viewer"]
+[node name="grabber_t" type="Panel" parent="HBoxContainer/Viewer"]
+material = SubResource( 8 )
+anchor_bottom = 0.5
+margin_left = 366.0
+margin_top = 37.0
+margin_right = 406.0
+margin_bottom = -361.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+Sector = 1
+
+[node name="grabber_r" type="Panel" parent="HBoxContainer/Viewer"]
+material = SubResource( 9 )
+margin_left = 790.0
+margin_top = 306.0
+margin_right = 830.0
+margin_bottom = 346.0
+rect_rotation = 90.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+Sector = 3
+
+[node name="grabber_b" type="Panel" parent="HBoxContainer/Viewer"]
+material = SubResource( 10 )
+margin_left = 359.0
+margin_top = 496.0
+margin_right = 399.0
+margin_bottom = 536.0
+rect_rotation = 180.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+Sector = 5
+
+[node name="grabber_l" type="Panel" parent="HBoxContainer/Viewer"]
+material = SubResource( 11 )
+anchor_right = 0.028
+margin_left = 182.0
+margin_top = 259.0
+margin_right = 192.992
+margin_bottom = 299.0
+rect_rotation = -90.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": true
+}
+Sector = 7
+
+[node name="grabber_tl" type="Panel" parent="HBoxContainer/Viewer"]
 material = SubResource( 4 )
 margin_left = 45.0
 margin_top = 1.0
@@ -360,20 +446,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="grabber_t" type="Panel" parent="Viewer"]
-visible = false
-material = SubResource( 8 )
-anchor_bottom = 0.5
-margin_left = 366.0
-margin_top = 37.0
-margin_right = 406.0
-margin_bottom = -223.0
-script = ExtResource( 3 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="grabber_tr" type="Panel" parent="Viewer"]
+[node name="grabber_tr" type="Panel" parent="HBoxContainer/Viewer"]
 material = SubResource( 5 )
 margin_left = 749.0
 margin_top = 4.0
@@ -386,19 +459,7 @@ __meta__ = {
 }
 Sector = 2
 
-[node name="grabber_r" type="Panel" parent="Viewer"]
-visible = false
-material = SubResource( 9 )
-margin_left = 489.0
-margin_top = 258.0
-margin_right = 529.0
-margin_bottom = 298.0
-script = ExtResource( 3 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="grabber_bl" type="Panel" parent="Viewer"]
+[node name="grabber_bl" type="Panel" parent="HBoxContainer/Viewer"]
 material = SubResource( 6 )
 margin_left = 44.0
 margin_top = 600.0
@@ -411,19 +472,7 @@ __meta__ = {
 }
 Sector = 6
 
-[node name="grabber_b" type="Panel" parent="Viewer"]
-visible = false
-material = SubResource( 10 )
-margin_left = 359.0
-margin_top = 496.0
-margin_right = 399.0
-margin_bottom = 536.0
-script = ExtResource( 3 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="grabber_br" type="Panel" parent="Viewer"]
+[node name="grabber_br" type="Panel" parent="HBoxContainer/Viewer"]
 material = SubResource( 7 )
 margin_left = 745.0
 margin_top = 601.0
@@ -436,19 +485,24 @@ __meta__ = {
 }
 Sector = 4
 
-[node name="grabber_l" type="Panel" parent="Viewer"]
-visible = false
-material = SubResource( 11 )
-margin_left = 257.0
-margin_top = 263.0
-margin_right = 297.0
-margin_bottom = 303.0
-script = ExtResource( 3 )
+[node name="Panel" type="Panel" parent="."]
+margin_top = 876.0
+margin_right = 1300.0
+margin_bottom = 900.0
+rect_min_size = Vector2( 0, 24 )
+
+[node name="Label" type="Label" parent="Panel"]
+margin_left = 265.0
+margin_top = 5.0
+margin_right = 305.0
+margin_bottom = 19.0
+text = "Move up: Arrowkey up    Move down: Arrowkey down / Enter    Scale Crop Area: Mouse Wheel"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[connection signal="item_selected" from="Sidebar_l/FileList/ScrollContainer/ItemList" to="Sidebar_l/FileList/ScrollContainer/ItemList" method="OnItemSelected"]
-[connection signal="pressed" from="Sidebar_l/FileList/Button" to="Sidebar_l/FileList/ScrollContainer/ItemList" method="OnSaveAll"]
-[connection signal="gui_input" from="Viewer" to="Viewer" method="OnInput"]
-[connection signal="resized" from="Viewer" to="Viewer" method="OnResized"]
+[connection signal="item_selected" from="HBoxContainer/Sidebar_l/FileList/ScrollContainer/ItemList" to="HBoxContainer/Sidebar_l/FileList/ScrollContainer/ItemList" method="OnItemSelected"]
+[connection signal="pressed" from="HBoxContainer/Sidebar_l/FileList/Button2" to="HBoxContainer/Sidebar_l/FileList/ScrollContainer/ItemList" method="ClearFileList"]
+[connection signal="pressed" from="HBoxContainer/Sidebar_l/FileList/Button" to="HBoxContainer/Sidebar_l/FileList/ScrollContainer/ItemList" method="OnSaveAll"]
+[connection signal="gui_input" from="HBoxContainer/Viewer" to="HBoxContainer/Viewer" method="OnInput"]
+[connection signal="resized" from="HBoxContainer/Viewer" to="HBoxContainer/Viewer" method="OnResized"]
