@@ -1,6 +1,6 @@
 # Van Cropington
 
-A very simple, fast Image Cropper and compressor using Godot, C# and [Magick.Net](https://github.com/dlemstra/Magick.NET). Ment for quickly cropping and / or compressing a big ammounts of images.
+A very simple, fast Image Cropper and compressor using Godot, C# and [Magick.Net](https://github.com/dlemstra/Magick.NET). Meant for quickly cropping and / or compressing a big ammounts of images.
 
 https://user-images.githubusercontent.com/25198913/170427170-6255ab57-417c-4925-96cd-f588a80f78ae.mp4
 
